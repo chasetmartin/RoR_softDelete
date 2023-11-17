@@ -1,24 +1,33 @@
-# README
+# Ruby on Rails soft_delete and restore coding test
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+### Follow the steps below to clone the respository, create the database, run the RSpec tests, and run the dev server to see implementation in the app.
 
-Things you may want to cover:
+### I will also explain my code below the cloning instructions
+#### Ruby version 3.2.2
+#### Rails version 7.1.2
 
-* Ruby version
+**Clone the Repository:**
+```bash
+git clone https://github.com/chasetmartin/RoR_softDelete.git
 
-* System dependencies
+cd RoR_softDelete
+```
+**Install the Dependencies**
+```bash
+bundle install
+```
+**Setup and Seed the SQLite3 Database**
+```bash
+rails db:setup
+```
+**Run all three RSpec test files that test soft_delete, restore, and the active scope**
+```bash
+bundle exec rspec -f documentation
+```
+**Run the Puma server to see the Item and its methods implemented**
+```bash
+rails server
+```
+**Navigate to localhost:3000 in your web browser**
 
-* Configuration
 
-* Database creation
-
-* Database initialization
-
-* How to run the test suite
-
-* Services (job queues, cache servers, search engines, etc.)
-
-* Deployment instructions
-
-* ...
