@@ -122,3 +122,66 @@ RSpec.describe Item, type: :model do
     end
 end
 ```
+# Next Step
+#### After testing I quickly added the methods and scope to my items.controller so that I could implement them with my CRUD views
+##### New/changed sections of my items.controller
+```rb
+  # Update index method to only return active items useing the active scope from Item model
+  def index
+    @items = Item.active
+  end
+
+  # DELETE /items/1 or /items/1.json
+  # Update destroy method to soft_delete item
+  def destroy
+    @item = Item.find(params[:id])
+    @item.soft_delete
+
+    respond_to do |format|
+      format.html { redirect_to items_url, notice: "Item was successfully soft-deleted." }
+      format.json { head :no_content }
+    end
+  end
+
+  # PUT /items/1/restore
+  # Add restore method to restore soft-deleted item
+  def restore
+    @item = Item.find(params[:id])
+    @item.restore
+
+    respond_to do |format|
+      format.html { redirect_to items_url, notice: "Item was successfully restored." }
+      format.json { head :no_content }
+    end
+  end
+
+  # GET /items/deleted or /items/deleted.json
+  # Added controller action to GET soft-deleted trash can items
+  def deleted
+    @items = Item.where.not(deleted_at: nil)
+  end
+```
+#### I implemented a simple "trash can" so that the user can access the soft-deleted items, and I updated the show.html.erb file to include either the restore or soft_delete button based on the deleted_at attribute.
+##### show.html.erb
+```erb
+<div class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+  <p class="text-green-500"><%= notice %></p>
+
+  <div class="w-full max-w-md p-4 bg-white rounded shadow-md">
+    <%= render @item %>
+
+    <div class="mt-4">
+      <%= link_to "Edit this item", edit_item_path(@item), class: "mr-2 text-blue-500 hover:underline" %> |
+      <%= link_to "Back to items", items_path, class: "text-blue-500 hover:underline" %>
+
+      <%# Check if deleted_at is present, if so display restore button, else display soft delete button %>
+      <% if @item.deleted_at.present? %>
+        <%= button_to "Restore this item", restore_item_path(@item), method: :put, class: "ml-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600" %>
+        <p>Soft deleted at <%= @item.deleted_at %></p>
+      <% else %>
+        <%= button_to "Soft Delete", @item, method: :delete, class: "ml-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600" %>
+      <% end %>
+    </div>
+  </div>
+</div>
+```
