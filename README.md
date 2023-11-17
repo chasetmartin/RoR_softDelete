@@ -25,7 +25,7 @@ rails db:setup
 ```bash
 bundle exec rspec -f documentation
 ```
-**Precompile assets so the TailwindCSS works on first app build**
+**Precompile assets so TailwindCSS works on first app build**
 ```bash
 rails assets:precompile
 ```
