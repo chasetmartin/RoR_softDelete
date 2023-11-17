@@ -25,6 +25,10 @@ rails db:setup
 ```bash
 bundle exec rspec -f documentation
 ```
+**Precompile assets so the TailwindCSS works on first app build**
+```bash
+rails assets:precompile
+```
 **Run the Puma server to see the Item and its methods implemented**
 ```bash
 rails server
