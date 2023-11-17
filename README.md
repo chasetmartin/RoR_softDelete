@@ -53,7 +53,7 @@ end
 #### Added the following methods and scope to my Item model:
 - soft_delete to update the delete_at time to the current time
 - restore to update the deleted_at time to nil
-- created a default scope called "active" to only return items where deleted_at is nil
+- created a default scope called to only return items where deleted_at is nil in normal queries
 ```rb
 class Item < ApplicationRecord
     validates :name, presence: true
@@ -68,8 +68,8 @@ class Item < ApplicationRecord
         update(deleted_at: nil)
     end
 
-    # Default scope to return only items that have not been soft deleted
-    scope :active, -> { where(deleted_at: nil) }
+    # Default scope to return only items that have not been soft deleted in normal queries
+    default_scope { where(deleted_at: nil) }
 end
 ```
 ## RSpec Testing
@@ -113,16 +113,15 @@ end
 require 'rails_helper'
 
 RSpec.describe Item, type: :model do
-    # Testing active scope by creating an item, soft deleting it, and checking that Item.active does not include item
-    it 'returns only active items' do
+    # Testing default scope by creating an item, soft deleting it, and checking that the Item.all query does not include item
+    it 'returns only non-deleted items within default scope' do
         item = Item.create(name: 'Test Orange')
         item.soft_delete
-        #Active item that active scope should include
+        #Active item that default scope should include
         activeitem = Item.create(name: 'Test Banana')
 
-        expect(Item.active).not_to include(item)
-        #This is like a double check to make sure .active does include what should be an active item
-        expect(Item.active).to include(activeitem)
+        expect(Item.all).not_to include(item)
+        expect(Item.all).to include(activeitem)
     end
 end
 ```
@@ -130,12 +129,13 @@ end
 #### After testing I quickly added the methods and scope to my items.controller so that I could implement them with my CRUD views
 ##### New/changed sections of my items.controller
 ```rb
-  # Update index method to only return active items useing the active scope from Item model
+  # GET /items or /items.json
+  # With the default scope, the index action will only return items that have not been soft deleted
   def index
-    @items = Item.active
+    @items = Item.all
   end
 
-  # DELETE /items/1 or /items/1.json
+   # DELETE /items/1 or /items/1.json
   # Update destroy method to soft_delete item
   def destroy
     @item = Item.find(params[:id])
@@ -148,9 +148,9 @@ end
   end
 
   # PUT /items/1/restore
-  # Add restore method to restore soft-deleted item
+  # Add restore method to restore soft-deleted item, use unscoped to find item
   def restore
-    @item = Item.find(params[:id])
+    @item = Item.unscoped.find(params[:id])
     @item.restore
 
     respond_to do |format|
@@ -160,10 +160,22 @@ end
   end
 
   # GET /items/deleted or /items/deleted.json
-  # Added controller action to GET soft-deleted trash can items
+  # Added controller action to GET soft-deleted trash can items, use unscoped to find all items
   def deleted
-    @items = Item.where.not(deleted_at: nil)
+    @items = Item.unscoped.where.not(deleted_at: nil)
   end
+
+ private
+    # Use callbacks to share common setup or constraints between actions, use unscoped to find all items even soft-deleted
+    def set_item
+      @item = Item.unscoped.find(params[:id])
+    end
+
+    # Only allow a list of trusted parameters through, only name is required.
+    def item_params
+      params.require(:item).permit(:name)
+    end
+end
 ```
 #### I implemented a simple "trash can" so that the user can access the soft-deleted items, and I updated the show.html.erb file to include either the restore or soft_delete button based on the deleted_at attribute.
 ##### show.html.erb
