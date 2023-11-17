@@ -1,0 +1,21 @@
+<div class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+  <p class="text-green-500"><%= notice %></p>
+
+  <div class="w-full max-w-md p-4 bg-white rounded shadow-md">
+    <%= render @item %>
+
+    <div class="mt-4">
+      <%= link_to "Edit this item", edit_item_path(@item), class: "mr-2 text-blue-500 hover:underline" %> |
+      <%= link_to "Back to items", items_path, class: "text-blue-500 hover:underline" %>
+
+      <%# Check if deleted_at is present, if so display restore button, else display soft delete button %>
+      <% if @item.deleted_at.present? %>
+        <%= button_to "Restore this item", restore_item_path(@item), method: :put, class: "ml-2 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600" %>
+        <p>Soft deleted at <%= @item.deleted_at %></p>
+      <% else %>
+        <%= button_to "Soft Delete", @item, method: :delete, class: "ml-2 px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600" %>
+      <% end %>
+    </div>
+  </div>
+</div>
+

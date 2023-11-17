@@ -1,0 +1,18 @@
+<div class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+  <h1 class="text-3xl font-bold mb-4">Soft-Deleted Trash Can</h1>
+
+  <div id="items" class="w-full max-w-md p-4 bg-white rounded shadow-md">
+    <% @items.each do |item| %>
+      <div class="mb-4 border-b pb-2">
+        <div class="text-xl">
+          <%= item.name %>
+        </div>
+        <p>
+          <%= link_to "Show this item", item, class: "block mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" %>
+        </p>
+      </div>
+    <% end %>
+  </div>
+
+  <%= link_to "Back to Active Items", items_path, class: "mt-4 text-blue-500 hover:underline" %>
+</div>

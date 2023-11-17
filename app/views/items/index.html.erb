@@ -1,0 +1,26 @@
+<div class="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+  <p class="text-green-500"><%= notice %></p>
+
+  <h1 class="text-3xl font-bold mb-4">Items</h1>
+
+  <div id="items" class="w-full max-w-md p-4 bg-white rounded shadow-md">
+    <% @items.each do |item| %>
+      <div class="mb-4 border-b pb-2">
+        <div class="text-xl">
+        <%= item.name %>
+        </div>
+        <p>
+          <%# Path to the item details for editing and soft delete %>
+          <%= link_to "Show this item", item, class: "block mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600" %>
+        </p>
+      </div>
+    <% end %>
+  </div>
+
+  <%# Path to create a new item %>
+  <%= link_to "New item", new_item_path, class: "mt-4 px-4 py-2 bg-green-500 text-white rounded hover:bg-green-600" %>
+
+  <%# Path to view soft-deleted items to get to restore %>
+  <%= button_to "View Soft-Delete Trash Can", url_for(controller: 'items', action: 'deleted'), method: :get, class: "mt-2 px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600" %>
+</div>
+
