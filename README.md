@@ -3,20 +3,21 @@
 ### Follow the steps below to clone the respository, create the database, run the RSpec tests, and run the dev server to see implementation in the app.
 
 ### I will also explain my code below the cloning instructions
-#### Ruby version 3.2.2
-#### Rails version 7.1.2
+Ruby version 3.2.2
+Rails version 7.1.2
 
-**Clone the Repository:**
+**Clone the repository:**
 ```bash
 git clone https://github.com/chasetmartin/RoR_softDelete.git
-
+```
+```bash
 cd RoR_softDelete
 ```
-**Install the Dependencies**
+**Install the dependencies**
 ```bash
 bundle install
 ```
-**Setup and Seed the SQLite3 Database**
+**Setup and seed the SQLite3 database**
 ```bash
 rails db:setup
 ```
@@ -28,6 +29,96 @@ bundle exec rspec -f documentation
 ```bash
 rails server
 ```
-**Navigate to localhost:3000 in your web browser**
+## Navigate to localhost:3000 in your web browser, app is basically styled with TailwindCSS
+# Code Review
+## Model Creation
+#### Used the Rails scaffolding tool to generate an Item model with name(string) and deleted_at(datetime) attributes and scaffold the necessary views and controller actions. The first migration file being:
+```rb
+class CreateItems < ActiveRecord::Migration[7.1]
+  def change
+    create_table :items do |t|
+      t.string :name, null: false
+      t.datetime :deleted_at
 
+      t.timestamps
+    end
+  end
+end
+```
+## Soft Delete, Restore, and Scope
+#### Added the following methods and scope to my Item model:
+- soft_delete to update the delete_at time to the current time
+- restore to update the delte_at time to nil
+- created a default scope called "active" to only return items where deleted_at is nil
+```rb
+class Item < ApplicationRecord
+    validates :name, presence: true
 
+    # Soft delete method to update deleted_at column to the current time soft_delete is called
+    def soft_delete
+        update(deleted_at: Time.current)
+    end
+
+    # Restore method to set deleted_at column to nil
+    def restore
+        update(deleted_at: nil)
+    end
+
+    # Default scope to return only items that have not been soft deleted
+    scope :active, -> { where(deleted_at: nil) }
+end
+```
+## RSpec Testing
+#### Added three RSpec test files, one to test each new method and scope:
+#### Each file is commented to explain the test reasoning
+##### softDelete_spec.rb
+```rb
+require 'rails_helper'
+
+RSpec.describe Item, type: :model do
+# Testing soft_delete method by creating an item, soft deleting it, and checking that the deleted_at column is set to a Time object    
+    it 'soft deletes an item' do
+        item = Item.create(name: 'Test Apple')
+
+        expect {
+            item.soft_delete
+    }.to change { item.reload.deleted_at }.from(nil).to be_a(Time)
+    # Used type checking for Time class to ensure that the deleted_at is set to a Time object.
+    # Cannnot use eq(Time.current) because the time will be different when the test runs its check.
+    end
+end
+```
+##### restore_spec.rb
+```rb
+require 'rails_helper'
+
+RSpec.describe Item, type: :model do
+    # Testing restore method by creating an item, soft deleting it then restoring it, and checking that the deleted_at column is once again nil
+    it 'restores a soft deleted item' do
+        item = Item.create(name: 'Test Pear')
+        item.soft_delete
+
+        expect {
+            item.restore
+    }.to change { item.reload.deleted_at }.from(be_a(Time)).to(nil)
+    end
+end
+```
+##### activeScope_spec.rb
+```rb
+require 'rails_helper'
+
+RSpec.describe Item, type: :model do
+    # Testing active scope by creating an item, soft deleting it, and checking that Item.active does not include item
+    it 'returns only active items' do
+        item = Item.create(name: 'Test Orange')
+        item.soft_delete
+        #Active item that active scope should include
+        activeitem = Item.create(name: 'Test Banana')
+
+        expect(Item.active).not_to include(item)
+        #This is like a double check to make sure .active does include what should be an active item
+        expect(Item.active).to include(activeitem)
+    end
+end
+```
