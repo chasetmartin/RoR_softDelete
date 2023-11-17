@@ -52,7 +52,7 @@ end
 ## Soft Delete, Restore, and Scope
 #### Added the following methods and scope to my Item model:
 - soft_delete to update the delete_at time to the current time
-- restore to update the delte_at time to nil
+- restore to update the deleted_at time to nil
 - created a default scope called "active" to only return items where deleted_at is nil
 ```rb
 class Item < ApplicationRecord
