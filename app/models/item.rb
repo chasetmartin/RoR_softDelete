@@ -11,6 +11,6 @@ class Item < ApplicationRecord
         update(deleted_at: nil)
     end
 
-    # Default scope to return only items that have not been soft deleted
-    scope :active, -> { where(deleted_at: nil) }
+    # Default scope to return only items that have not been soft deleted in normal queries
+    default_scope { where(deleted_at: nil) }
 end

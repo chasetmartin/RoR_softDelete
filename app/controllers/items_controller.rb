@@ -2,9 +2,9 @@ class ItemsController < ApplicationController
   before_action :set_item, only: %i[ show edit update destroy ]
 
   # GET /items or /items.json
-  # Update index method to only return active items useing the active scope from Item model
+  # With the default scope, the index action will only return items that have not been soft deleted
   def index
-    @items = Item.active
+    @items = Item.all
   end
 
   # GET /items/deleted or /items/deleted.json
@@ -66,9 +66,9 @@ class ItemsController < ApplicationController
   end
 
   # PUT /items/1/restore
-  # Add restore method to restore soft-deleted item
+  # Add restore method to restore soft-deleted item, use unscoped to find item
   def restore
-    @item = Item.find(params[:id])
+    @item = Item.unscoped.find(params[:id])
     @item.restore
 
     respond_to do |format|
@@ -78,15 +78,15 @@ class ItemsController < ApplicationController
   end
 
   # GET /items/deleted or /items/deleted.json
-  # Added controller action to GET soft-deleted trash can items
+  # Added controller action to GET soft-deleted trash can items, use unscoped to find all items
   def deleted
-    @items = Item.where.not(deleted_at: nil)
+    @items = Item.unscoped.where.not(deleted_at: nil)
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
+    # Use callbacks to share common setup or constraints between actions, use unscoped to find all items
     def set_item
-      @item = Item.find(params[:id])
+      @item = Item.unscoped.find(params[:id])
     end
 
     # Only allow a list of trusted parameters through, only name is required.
