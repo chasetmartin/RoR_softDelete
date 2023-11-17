@@ -1,4 +1,4 @@
-# Ruby on Rails soft_delete and restore coding test
+# Ruby on Rails: Item model with soft_delete, restore, and scope
 
 ### Follow the steps below to clone the respository, create the database, run the RSpec tests, and run the dev server to see implementation in the app.
 
