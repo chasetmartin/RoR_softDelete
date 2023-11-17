@@ -108,7 +108,7 @@ RSpec.describe Item, type: :model do
     end
 end
 ```
-##### activeScope_spec.rb
+##### defaultScope_spec.rb
 ```rb
 require 'rails_helper'
 
